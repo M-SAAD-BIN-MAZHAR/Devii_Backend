@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import os
 from app.api.v1.api import api_router
 from app.config import settings
@@ -17,6 +18,15 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Add CORS middleware for Railway deployment
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Configure this properly for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Create upload directories if they don't exist
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 os.makedirs(settings.QR_CODE_DIR, exist_ok=True)
@@ -29,18 +39,19 @@ async def root():
     return {
         "message": "Devcon '26 Registration API",
         "status": "operational",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "environment": settings.ENVIRONMENT
     }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"}
+    return {"status": "healthy", "environment": settings.ENVIRONMENT}
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "app.main:app",
         host="0.0.0.0",
-        port=8000,
-        reload=True
+        port=settings.PORT,
+        reload=settings.DEBUG
     )

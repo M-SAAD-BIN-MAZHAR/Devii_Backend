@@ -4,40 +4,42 @@ import os
 
 class Settings(BaseSettings):
     
-    DATABASE_URL: str = "postgresql://postgres:1234@localhost:5432/Devcon"
-    #For OnlineService
-    #postgresql://<username>:<password>@<host>:<port>/<database_name>
-# Use this Structure
+    # Database - Railway will provide this via environment variable
+    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://postgres:1234@localhost:5432/Devcon")
     
-    # Security
-    SECRET_KEY: str = "your-secret-key-change-in-production"
+    # Security - Use environment variables for production
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
     
-    # Email
-    SMTP_SERVER: str = "smtp.gmail.com"
-    SMTP_PORT: int = 587
-    SMTP_USERNAME: str = "msaadbinmazhar@gmail.com"
-    SMTP_PASSWORD: str = "pcfc jxzl actk lgbn"  # Generate new App Password
-    FROM_EMAIL: str = "msaadbinmazhar@gmail.com"  # Match username
+    # Email Configuration
+    SMTP_SERVER: str = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USERNAME: str = os.getenv("SMTP_USERNAME", "msaadbinmazhar@gmail.com")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "pcfc jxzl actk lgbn")
+    FROM_EMAIL: str = os.getenv("FROM_EMAIL", "msaadbinmazhar@gmail.com")
     
-    # File Uploads
-    UPLOAD_DIR: str = "app/static/uploads"
-    MAX_FILE_SIZE: int = 5 * 1024 * 1024  # 5MB
+    # File Uploads - Use /tmp for Railway (ephemeral storage)
+    UPLOAD_DIR: str = os.getenv("UPLOAD_DIR", "/tmp/uploads")
+    MAX_FILE_SIZE: int = int(os.getenv("MAX_FILE_SIZE", str(5 * 1024 * 1024)))  # 5MB
     ALLOWED_EXTENSIONS: list = [".jpg", ".jpeg", ".png", ".pdf"]
     
-    # QR Codes
-    QR_CODE_DIR: str = "app/static/qrcodes"
+    # QR Codes - Use /tmp for Railway
+    QR_CODE_DIR: str = os.getenv("QR_CODE_DIR", "/tmp/qrcodes")
     
-    # Event
-    TEAM_MIN_SIZE: int = 2
-    TEAM_MAX_SIZE: int = 5
+    # Event Configuration
+    TEAM_MIN_SIZE: int = int(os.getenv("TEAM_MIN_SIZE", "2"))
+    TEAM_MAX_SIZE: int = int(os.getenv("TEAM_MAX_SIZE", "5"))
     
     # Payment
-    REGISTRATION_FEE: float = 1000.0
+    REGISTRATION_FEE: float = float(os.getenv("REGISTRATION_FEE", "1000.0"))
     
-    # Debug
-    DEBUG: bool = False
+    # Environment
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
+    ENVIRONMENT: str = os.getenv("RAILWAY_ENVIRONMENT", "development")
+    
+    # Railway specific
+    PORT: int = int(os.getenv("PORT", "8000"))
     
     class Config:
         env_file = ".env"
